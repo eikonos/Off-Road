@@ -238,11 +238,33 @@ class radio extends forminput
             $this->attributes["name"] = $this->name;
             $this->attributes["id"] = "{$this->name}_{$option['value']}";
             $this->attributes["value"] = $option['value'];
+            unset($this->attributes["checked"]);
             if ($this->get_value() == $option['value']){$this->attributes["checked"] = "checked";}
             echo $this->output_attributes();
             echo "{$option['label']}</label>";
         }
         return ob_get_clean();
+    }
+
+    # this provides the option inputs as an array that can be looped through in a template to enable custom formatting
+    #   between options, such as adding text elements associated with particular options
+    function option_set() {
+        $options = array();
+        $this->attributes["type"] = "radio";
+        $this->attributes["name"] = $this->name;
+        foreach ($this->validate_data as $option) {
+            ob_start();
+            echo "<label for=\"{$this->name}_{$option['value']}\">";
+            $this->attributes["id"] = "{$this->name}_{$option['value']}";
+            $this->attributes["value"] = $option['value'];
+            $this->attributes["checked"] = ($this->get_value() == $option['value']) ? "checked" : "";
+            unset($this->attributes["checked"]);
+            if ($this->get_value() == $option['value']){$this->attributes["checked"] = "checked";}
+            echo $this->output_attributes();
+            echo "{$option['label']}</label>";
+            $options[$option['value']] = ob_get_clean();
+        }
+        return $options;
     }
 }
 
