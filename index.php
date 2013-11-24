@@ -13,6 +13,18 @@ define("LAYER_FOLDER_NAME", "layers");
 define("EXTENSION_FOLDER_NAME", "extensions");
 define("LIBRARY_FOLDER_NAME", "libraries");
 
+if (!defined("SITE_BASE_URL")) {
+    # if this code is in a subfolder of the website, figure out what the subfolder url is so it can be added to the route urls
+    $url_slash_pos = strrpos($_SERVER["SCRIPT_NAME"], "/");
+    if ($url_slash_pos > 0) {
+        # note: always trim the trailing slash so routes can match with or without the slash
+        define("SITE_BASE_URL", substr($_SERVER["SCRIPT_NAME"], 1, $url_slash_pos - 1));
+    }
+    else
+        define("SITE_BASE_URL", "");
+}
+
+
 class layer {
     static $current_layer_index = -1;
 
@@ -99,7 +111,7 @@ function iterable($var) {
 # add the domain name to a url
 function href($location, $replace = true) {
     static $site_url = null;
-    if (0 === strpos($location, "http://") || 0 === strpos($location, "https://")) {
+    if (0 === strpos($location, "http://") || 0 === strpos($location, "https://") || 0 === strpos($location, "//")) {
         return $replace ? str_replace(" ", "_", $location) : $location;
     } else {
         if (null == $site_url) {
@@ -108,6 +120,9 @@ function href($location, $replace = true) {
                 $_SERVER["HTTP_HOST"] = $_SERVER["SERVER_NAME"];
             }
             $site_url = (443 == $_SERVER["SERVER_PORT"] ? "https://" : "http://").$_SERVER["HTTP_HOST"]."/";
+            if (strlen(SITE_BASE_URL) > 0) {
+                $site_url .= SITE_BASE_URL . "/";   # trailing slash is always trimmed from base url
+            }
         }
         while (strlen($location) > 0 && "/" == $location[0]) {
             $location = substr($location, 1);

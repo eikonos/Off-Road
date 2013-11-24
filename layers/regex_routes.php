@@ -22,9 +22,13 @@ class regex_routes extends layer {
             $matches = array();
             # remove leading and trailing / characters from uri so we always match without them
             $uri = $_SERVER["REQUEST_URI"];
-            if ("/" == $uri[0]) {
-                $uri = substr($uri, 1);
+            if (strlen(SITE_BASE_URL) > 0) {
+                if ("/" == $uri[0])
+                    $uri = substr($uri, 1);
+                $uri = substr($uri, strlen(SITE_BASE_URL));
             }
+            if ("/" == $uri[0])
+                $uri = substr($uri, 1);
             $len = strlen($uri);
             while ($len > 1 && "/" == $uri[$len - 1]) {
                 $len -= 1;    # the last character is a /, so drop it
