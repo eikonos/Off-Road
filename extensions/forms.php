@@ -103,8 +103,18 @@ abstract class forminput
     }
 
     function __toString() {
-        return "<input type=\"text\" size=\"{$this->size}\" name=\"{$this->name}\" ".
-            ((true == $this->read_only) ? "readonly " : "")."value=\"".htmlentities($this->value, ENT_QUOTES, "UTF-8", true)."\" />";
+        $this->attributes["type"]   = "text";
+        $this->attributes["name"]   = $this->name;
+        $this->attributes["value"]  = htmlentities($this->value, ENT_QUOTES, "UTF-8", true);
+        if (!isset($this->attributes["id"]))
+            $this->attributes["id"] = $this->name;
+        if ($this->size > 0)
+            $this->attributes["size"] = $this->size;
+        if (isset($this->read_only) and $this->read_only)
+            $this->attributes["readonly"] = "";
+        if (isset($this->autofocus) and $this->autofocus)
+            $this->attributes["autofocus"] = "";
+        return $this->output_attributes();
     }
 
     function print_label() {
@@ -334,10 +344,6 @@ class textbox extends forminput
     function size($size){$this->size = $size; return $this;}
     function readonly($readonly){$this->readonly = ($readonly ? " readonly" : ""); return $this;}
     function autofocus($autofocus){$this->autofocus = ($autofocus ? " autofocus" : ""); return $this;}
-    function __toString() {
-        return "<input type=\"{$this->type}\" name=\"{$this->name}\" value=\"".htmlentities($this->value, ENT_QUOTES, "UTF-8", true).
-            "\" size=\"{$this->size}\"{$this->readonly}{$this->autofocus} />";
-    }
 }
 
 abstract class forms
