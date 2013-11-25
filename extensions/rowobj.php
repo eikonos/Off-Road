@@ -115,10 +115,19 @@ abstract class rowobj {
 
     static function static_insert($class, $new_values) {
         foreach ($new_values as $key => &$value) {
-            if ("timestamp" == $class::$fields[$key]["type"]
-                || "datetime" == $class::$fields[$key]["type"]) {
+            switch ($class::$fields[$key]["type"]) {
+                case "timestamp":
+                case "datetime":
                 if ("" == $value || ($value = date_obj($value)) && !$value->is_valid) {
                     $value = null;
+                }
+                break;
+
+                case "boolean":
+                case "bool":
+                if (!is_bool($value)) {
+                    # mysql is not so strict, but with psql, boolean fields have to use 't' and 'f', so type is important
+                    throw new Exception("Error: cannot save non-boolean value to boolean database field.");
                 }
             }
         }
