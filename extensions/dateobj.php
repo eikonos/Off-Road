@@ -94,6 +94,16 @@ if (strnatcmp(phpversion(), "5.2.10") >= 0) {
             }
         }
 
+        function day_of_week() {
+            if (!$this->is_valid()) return "";
+            return intval(date("w", $this->value()));
+        }
+
+        function format($format) {
+            if (!$this->is_valid()) return "";
+            return date($format, $this->value());
+        }
+
         function long() {
             if (!$this->is_valid()) return "";
             return date("l, F jS, Y", $this->value());      # eg: Saturday, March 20th, 2010
@@ -236,6 +246,16 @@ if (strnatcmp(phpversion(), "5.2.10") >= 0) {
                 $err_msg = get_class($this)." object does not have a {$name} value in {$trace[0]['file']} on line {$trace[0]['line']}.";
                 throw new Exception($err_msg);
             }
+        }
+
+        function day_of_week() {
+            if (!$this->is_valid()) return "";
+            return intval(date("w", $this->value()));
+        }
+
+        function format($format) {
+            if (!$this->is_valid()) return "";
+            return date($format, $this->value());
         }
 
         function long() {
