@@ -40,8 +40,11 @@ class error extends layer {
                     "<h2>Server Error</h2>";
                 if ($request['route']['parameters']['debug']) {
                     $body .= "<p>An error occurred while rendering the page. If this is not a testing server, set ".
-                        "'debug'=>false in settings.php.</p>";
-                    $body .= $request['route']['parameters']['error_info'];
+                        "<code>'debug'=>false</code> in settings.php.</p>";
+                    if (isset($request['route']['parameters']['error_info']))
+                        $body .= $request['route']['parameters']['error_info'];
+                    else
+                        $body .= "<p>No error information available.</p>";
                 } else {
                     $body .= "500 - Internal server error.";
                 }
