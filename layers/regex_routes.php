@@ -104,7 +104,7 @@ function get_url() {
     }
 
     # build url
-    $url = "/";
+    $url = "";
     foreach ($target_route["get_url"] as $part) {
         if (true === $part) {
             if (count($args) == 0) {
@@ -117,6 +117,9 @@ function get_url() {
     }
     if (count($args) > 0) {
         throw new Exception("Too many variable arguments supplied for get_url('$url_name').");
+    }
+    if (0 !== strpos($url, "http://") and 0 !== strpos($url, "https://") and 0 !== strpos($url, "//")) {
+        $url = "/".$url;
     }
     return href($url);
 }
