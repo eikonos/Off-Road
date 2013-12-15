@@ -62,3 +62,12 @@ class csrf_filter extends layer {
 function get_csrf() {
     return (isset($_SESSION["csrf"]) ? $_SESSION["csrf"] : null);
 }
+
+if (!defined("MCRYPT_DEV_URANDOM")) {
+    define("MCRYPT_DEV_URANDOM", 1);
+}
+if (!function_exists("mcrypt_create_iv")) {
+    function mcrypt_create_iv($size, $source = 1) {
+        return substr(bin2hex(file_get_contents('/dev/urandom', false, null, 0, 10)), 0, $size);
+    }
+}
