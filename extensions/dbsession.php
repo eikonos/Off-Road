@@ -53,6 +53,9 @@ class dbsession extends db {
         session_name($this->session_settings["session_name"]);
         session_start();
 
+        global $request;
+        $request['route']['parameters']['cookie_set'] = isset($_COOKIE[session_name()]);
+
         # check if session has expired
         if (get_session_data("last_access_time")) {
             if ((time() - get_session_data("last_access_time")) > $this->session_settings["lifetime"]) {
