@@ -103,7 +103,7 @@ abstract class forminput
     }
 
     function __toString() {
-        $this->attributes["type"]   = "text";
+        $this->attributes["type"]   = $this->type;
         $this->attributes["name"]   = $this->name;
         $this->attributes["value"]  = htmlentities($this->value, ENT_QUOTES, "UTF-8", true);
         if (!isset($this->attributes["id"]))
