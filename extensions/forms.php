@@ -12,17 +12,18 @@ if (!defined("OR_VERSION")) {header("Location: /");exit(0);}
 
 abstract class forminput
 {
-    protected $name = null;
-    protected $label = null;
-    protected $value = null;
-    protected $valid = true;
-    protected $err_msg = null;
-    protected $validate_func = array();
-    protected $validate_data = null;
-    protected $returns_value = true;
-    protected $do_trim = true;  # call trim() on the value
-    protected $already_loaded = false;
-    var $is_visible = true;
+    protected $name             = null;
+    protected $id               = null;
+    protected $label            = null;
+    protected $value            = null;
+    protected $valid            = true;
+    protected $err_msg          = null;
+    protected $validate_func    = array();
+    protected $validate_data    = null;
+    protected $returns_value    = true;
+    protected $do_trim          = true;  # call trim() on the value?
+    protected $already_loaded   = false;
+    var $is_visible             = true;
 
     function __construct() {
         return $this;
@@ -30,6 +31,8 @@ abstract class forminput
 
     function init($name, &$form) {
         if (!isset($this->name)){$this->name($name);}
+        # in order for css id to be more unique, use form name and input name combined
+        if (!isset($this->id)){$this->id($form->_meta->attributes->id."-".$this->get_name());}
         if (!isset($this->label)){$this->label($name);}
         if ($form->_meta->is_submitting){$this->load_value();}
         # validate
@@ -56,8 +59,8 @@ abstract class forminput
         return $this->valid;
     }
 
-    function load_value()   # only call this when the form is being submitted because it clears the default value
-    {
+    # only call this when the form is being submitted because it clears the default value
+    function load_value() {
         $this->value = null;
         if (isset($_POST[$this->name])) {
             $this->value = ($this->do_trim ? trim($_POST[$this->name]) : $_POST[$this->name]);
@@ -68,7 +71,9 @@ abstract class forminput
     }
 
     function name($name){$this->name = $name;return $this;}
+    function id($id){$this->id = $id;return $this;}
     function get_name(){return $this->name;}
+    function get_id(){return $this->id;}
     function label($label){$this->label = ucfirst(str_replace("_", " ", $label));return $this;}
     function label_raw($label){$this->label = $label;return $this;}
     function get_label(){return $this->label;}
@@ -106,8 +111,7 @@ abstract class forminput
         $this->attributes["type"]   = $this->type;
         $this->attributes["name"]   = $this->name;
         $this->attributes["value"]  = htmlentities($this->value, ENT_QUOTES, "UTF-8", true);
-        if (!isset($this->attributes["id"]))
-            $this->attributes["id"] = $this->name;
+        $this->attributes["id"]     = $this->id;
         if ($this->size > 0)
             $this->attributes["size"] = $this->size;
         if (isset($this->read_only) and $this->read_only)
@@ -118,7 +122,7 @@ abstract class forminput
     }
 
     function print_label() {
-        return "<label for=\"{$this->name}\">{$this->label}</label>";
+        return "<label for=\"{$this->id}\">{$this->label}</label>";
     }
 }
 
@@ -146,9 +150,7 @@ class button extends forminput
         $this->attributes["type"]   = "submit";
         $this->attributes["name"]   = $this->name;
         $this->attributes["value"]  = $this->label;
-        if (!isset($this->attributes["id"])) {
-            $this->attributes["id"]     = $this->name;
-        }
+        $this->attributes["id"]     = $this->id;
         return $this->output_attributes();
     }
 }
@@ -169,6 +171,7 @@ class checkbox extends forminput
     function __toString() {
         $this->attributes["type"] = "checkbox";
         $this->attributes["name"] = $this->name;
+        $this->attributes["id"]   = $this->id;
         if ($this->readonly){$this->attributes["disabled"] = "disabled";}
         if ($this->value){$this->attributes["checked"] = "checked";}
         return $this->output_attributes();
