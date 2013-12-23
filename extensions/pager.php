@@ -44,6 +44,8 @@ class pager
 
     function limit() {return $this->per_page;}
     function offset() {return $this->offset;}
+    function total_items() {return $this->item_count;}
+    function current_page() {return $this->active_page;}
 
     private function _create_link($link_num, $page_num) {
         return "<a href=\"{$this->link}".(($link_num-1) * $this->per_page)."\"".
