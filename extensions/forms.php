@@ -114,10 +114,10 @@ abstract class forminput
         $this->attributes["id"]     = $this->id;
         if ($this->size > 0)
             $this->attributes["size"] = $this->size;
-        if (isset($this->read_only) and $this->read_only)
-            $this->attributes["readonly"] = "";
+        if (isset($this->readonly) and $this->readonly)
+            $this->attributes["readonly"] = "readonly";
         if (isset($this->autofocus) and $this->autofocus)
-            $this->attributes["autofocus"] = "";
+            $this->attributes["autofocus"] = "autofocus";
         return $this->output_attributes();
     }
 
@@ -345,7 +345,7 @@ class textbox extends forminput
     var $readonly = "";
     var $autofocus = "";
     function size($size){$this->size = $size; return $this;}
-    function readonly($readonly){$this->readonly = ($readonly ? " readonly" : ""); return $this;}
+    function readonly($readonly){$this->readonly = $readonly; return $this;}
     function autofocus($autofocus){$this->autofocus = ($autofocus ? " autofocus" : ""); return $this;}
 }
 
