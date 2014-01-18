@@ -27,13 +27,15 @@ class regex_routes extends layer {
                     $uri = substr($uri, 1);
                 $uri = substr($uri, strlen(SITE_BASE_URL));
             }
-            if ("/" == $uri[0])
-                $uri = substr($uri, 1);
-            $len = strlen($uri);
-            while ($len > 1 && "/" == $uri[$len - 1]) {
-                $len -= 1;    # the last character is a /, so drop it
+            if (strlen($uri)) {
+                if ("/" == $uri[0])
+                    $uri = substr($uri, 1);
+                $len = strlen($uri);
+                while ($len > 1 && "/" == $uri[$len - 1]) {
+                    $len -= 1;    # the last character is a /, so drop it
+                }
+                $uri = substr($uri, 0, $len);
             }
-            $uri = substr($uri, 0, $len);
             foreach ($settings["routes"] as $route_name => $route) {
                 $count = preg_match("|{$route[0]}|", $uri, $matches);
                 if ($count > 0) {
