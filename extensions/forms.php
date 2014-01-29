@@ -161,8 +161,8 @@ class checkbox extends forminput
     var $readonly = false;
     function readonly($readonly){$this->readonly = (bool)($readonly); return $this;}
     function disabled($readonly){$this->readonly = (bool)($readonly); return $this;}
-    function load_value()   # only call this when the form is being submitted because it clears the default value
-    {
+    function load_value() {
+        # only call this when the form is being submitted because it clears the default value
         # no POST value is submitted if the checkbox is not checked
         $this->value = (isset($_POST[$this->name]));
         $this->already_loaded = true;
@@ -175,6 +175,48 @@ class checkbox extends forminput
         if ($this->readonly){$this->attributes["disabled"] = "disabled";}
         if ($this->value){$this->attributes["checked"] = "checked";}
         return $this->output_attributes();
+    }
+}
+
+function checkboxset($checkboxes){return new checkboxset($checkboxes);}
+class checkboxset extends forminput
+{
+    var $set = array();
+    var $readonly = false;
+
+    function __construct($checkboxes) {
+        foreach ($checkboxes as $name => $state) {
+            $this->set[$name] = checkbox()->value($state)->label($name);
+        }
+        return $this;
+    }
+
+    function init($name, &$form) {
+        # init the checkboxes before loading their values
+        foreach ($this->set as $checkbox_name => $checkbox) {
+            $checkbox->init($name."_".$checkbox_name, $form);
+        }
+        return parent::init($name, $form);
+    }
+
+    function load_value() {
+        # only call this when the form is being submitted because it clears the default value
+        # no POST value is submitted if the checkboxset is not checked
+        $this->value = array();
+        foreach ($this->set as $checkbox_name => $checkbox) {
+            $this->value[$checkbox_name] = $checkbox->load_value();
+        }
+        $this->already_loaded = true;
+        return $this->value;
+    }
+
+    function __toString() {
+        $html = "<span class=\"checkbox-set\">";
+        foreach ($this->set as $checkbox_name => $checkbox) {
+            $html .= "<span class=\"checkbox-set-item\">".$checkbox." ".$checkbox->print_label()."</span>";
+        }
+        $html .= "</span>";
+        return $html;
     }
 }
 
