@@ -9,23 +9,12 @@ if (!defined("OR_VERSION")) {header("Location: /");exit(0);}
 #
 
 # return a date_obj
-function date_obj($date = "", $default_date = false) {
-    if (false === $date)
-        # invalid default date passed in
-        return false;
-
-    if (is_a($date, "date_obj")) {
-        if ($date->is_valid)
-            # it's already a valid date_obj
-            return $date;
-
-        # create a date_obj with the default date, or return false
-        return date_obj($default_date, false);
-    } else {
+function date_obj($date = "") {
+    if (!is_a($date, "date_obj")) {
         # assume $date is a string date value
-        $new_date = new date_obj($date);
-        return date_obj($new_date, $default_date);
+        $date = new date_obj($date);
     }
+    return $date;
 }
 
 if (strnatcmp(phpversion(), "5.2.10") >= 0) {
