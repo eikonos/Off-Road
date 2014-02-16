@@ -134,6 +134,8 @@ class button extends forminput
     var $extra_data = null;
     function btn_function($btn_function){$this->btn_function = $btn_function;return $this;}
     function extra_data($extra_data){$this->extra_data =& $extra_data;return $this;}
+    function disabled($disabled){$this->disabled = (bool)($disabled); return $this;}
+    function autofocus($autofocus){$this->autofocus = (bool)($autofocus); return $this;}
     function init($name, &$form) {
         parent::init($name, $form);
         if (!method_exists($form, $this->btn_function)) {
@@ -147,11 +149,25 @@ class button extends forminput
     }
     function load_value(){}
     function __toString() {
-        $this->attributes["type"]   = "submit";
+        # do not set 'type'='button' because that prevents the button from submitting the form
         $this->attributes["name"]   = $this->name;
         $this->attributes["value"]  = $this->label;
         $this->attributes["id"]     = $this->id;
+        if (isset($this->disabled) and $this->disabled)
+            $this->attributes["disabled"] = "disabled";
+        if (isset($this->autofocus) and $this->autofocus)
+            $this->attributes["autofocus"] = "autofocus";
         return $this->output_attributes();
+    }
+
+    protected function output_attributes() {
+        ob_start();
+        echo "<button";
+        foreach ($this->attributes as $name => $value) {
+            echo " $name=\"$value\"";
+        }
+        echo ">{$this->name}</button>";
+        return ob_get_clean();
     }
 }
 
