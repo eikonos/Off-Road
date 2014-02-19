@@ -227,7 +227,7 @@ class checkboxset extends forminput
     }
 
     function __toString() {
-        $html = "<span class=\"checkbox-set\">";
+        $html = "<span id=\"checkbox-set-{$this->id}\" class=\"checkbox-set\">";
         foreach ($this->set as $checkbox_name => $checkbox) {
             $html .= "<span id=\"checkbox-set-item-{$this->id}-$checkbox_name\" class=\"checkbox-set-item checkbox-set-item-{$this->id}\">".$checkbox." ".$checkbox->print_label()."</span>";
         }
