@@ -229,7 +229,7 @@ class checkboxset extends forminput
     function __toString() {
         $html = "<span class=\"checkbox-set\">";
         foreach ($this->set as $checkbox_name => $checkbox) {
-            $html .= "<span class=\"checkbox-set-item\">".$checkbox." ".$checkbox->print_label()."</span>";
+            $html .= "<span id=\"checkbox-set-item-{$this->id}-$checkbox_name\" class=\"checkbox-set-item checkbox-set-item-{$this->id}\">".$checkbox." ".$checkbox->print_label()."</span>";
         }
         $html .= "</span>";
         return $html;
