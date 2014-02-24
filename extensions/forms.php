@@ -17,8 +17,7 @@ if (!defined("OR_FORM_LABEL_INVALID_CSS")) {
     define("OR_FORM_LABEL_INVALID_CSS", "form-label-invalid");
 }
 
-abstract class forminput
-{
+abstract class forminput {
     protected $name             = null;
     protected $id               = null;
     protected $label            = null;
@@ -147,8 +146,7 @@ abstract class forminput
 }
 
 function button(){return new button();}
-class button extends forminput
-{
+class button extends forminput {
     protected $returns_value = false;
     var $btn_function = null;
     var $extra_data = null;
@@ -192,8 +190,7 @@ class button extends forminput
 }
 
 function checkbox(){return new checkbox();}
-class checkbox extends forminput
-{
+class checkbox extends forminput {
     var $readonly = false;
     function readonly($readonly){$this->readonly = (bool)($readonly); return $this;}
     function disabled($readonly){$this->readonly = (bool)($readonly); return $this;}
@@ -215,8 +212,7 @@ class checkbox extends forminput
 }
 
 function checkboxset($checkboxes){return new checkboxset($checkboxes);}
-class checkboxset extends forminput
-{
+class checkboxset extends forminput {
     var $set = array();
     var $readonly = false;
 
@@ -257,8 +253,7 @@ class checkboxset extends forminput
 }
 
 function databox(){return new databox();}
-class databox extends forminput
-{
+class databox extends forminput {
     function load_value() {
         return $this->value;
     }
@@ -268,8 +263,7 @@ class databox extends forminput
 }
 
 function fileupload(){return new fileupload();}
-class fileupload extends forminput
-{
+class fileupload extends forminput {
     function init($name, &$form) {
         $ret = parent::init($name, $form);
         $v = $this->get_validate_data();
@@ -303,8 +297,7 @@ class fileupload extends forminput
 }
 
 function hidden(){return new hidden();}
-class hidden extends forminput
-{
+class hidden extends forminput {
     var $is_visible = false; # it does output on the page, but the user doesn't see it
     function load_value(){}
     function __toString() {
@@ -313,14 +306,12 @@ class hidden extends forminput
 }
 
 function password(){return new password();}
-class password extends textbox
-{
+class password extends textbox {
     var $type = "password";
 }
 
 function radio(){return new radio();}
-class radio extends forminput
-{
+class radio extends forminput {
     function __toString() {
         ob_start();
         foreach ($this->validate_data as $option) {
@@ -360,8 +351,7 @@ class radio extends forminput
 }
 
 function selectinput(){return new selectinput();}
-class selectinput extends forminput
-{
+class selectinput extends forminput {
     function __toString() {
         ob_start();
         echo "<select name=\"{$this->name}\">";
@@ -382,8 +372,7 @@ class selectinput extends forminput
 }
 
 function submit_button(){return new submit_button();}
-class submit_button extends forminput
-{
+class submit_button extends forminput {
     protected $returns_value = false;
     function load_value(){}
     function __toString() {
@@ -392,8 +381,7 @@ class submit_button extends forminput
 }
 
 function textarea(){return new textarea();}
-class textarea extends forminput
-{
+class textarea extends forminput {
     var $rows = null;
     var $cols = null;
     function rows($rows){$this->rows = $rows; return $this;}
@@ -416,8 +404,7 @@ class textarea extends forminput
 }
 
 function textbox(){return new textbox();}
-class textbox extends forminput
-{
+class textbox extends forminput {
     var $type = "text";
     var $size = 20;
     var $readonly = "";
@@ -427,8 +414,7 @@ class textbox extends forminput
     function autofocus($autofocus){$this->autofocus = ($autofocus ? " autofocus" : ""); return $this;}
 }
 
-abstract class forms
-{
+abstract class forms {
     abstract function create_inputs();
     abstract function validate();
     abstract function done($results);
@@ -505,8 +491,8 @@ abstract class forms
     }
 
     public function __isset($name) {
-        if (property_exists($this, $name))    # note isset() won't work with variable set to NULL
-        {
+        # note isset() won't work with variable set to NULL
+        if (property_exists($this, $name)) {
             return true;
         }
     }
