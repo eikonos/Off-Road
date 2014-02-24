@@ -10,6 +10,13 @@ if (!defined("OR_VERSION")) {header("Location: /");exit(0);}
 # See documentation for usage and customization details.
 #
 
+if (!defined("OR_FORM_INPUT_INVALID_CSS")) {
+    define("OR_FORM_INPUT_INVALID_CSS", "form-input-invalid");
+}
+if (!defined("OR_FORM_LABEL_INVALID_CSS")) {
+    define("OR_FORM_LABEL_INVALID_CSS", "form-label-invalid");
+}
+
 abstract class forminput
 {
     protected $name             = null;
@@ -17,6 +24,7 @@ abstract class forminput
     protected $label            = null;
     protected $value            = null;
     protected $valid            = true;
+    protected $show_invalid     = false;
     protected $err_msg          = null;
     protected $validate_func    = array();
     protected $validate_data    = null;
@@ -81,12 +89,21 @@ abstract class forminput
     function value($value, $force = false){if(!$this->already_loaded || $force){$this->value = $value;}return $this;}
     function get_value(){return $this->value;}
     function valid($valid){$this->valid = $valid; return $this;}
+    function show_invalid($show_invalid){$this->show_invalid = $show_invalid; return $this;}
     function get_valid(){return $this->valid;}
     function returns_value(){return $this->returns_value;}
     function get_validate_data(){return $this->validate_data;}
     function get_err_msg(){return $this->err_msg;}
     function err_msg($err_msg){$this->err_msg = $err_msg; return $this;}
     function attr($name, $value){$this->attributes[$name] = $value; return $this;}
+    function add_css_class($class) {
+        if (isset($this->attributes["class"]) and strlen($this->attributes["class"]) > 0) {
+            $this->attributes["class"] .= " ".$class;
+        } else {
+            $this->attributes["class"] = $class;
+        }
+        return $this;
+    }
     function validate($validate_func, $validate_data = null, $err_msg = null) {
         # validation function is always an array
         if (null !== $validate_func) {
@@ -118,11 +135,14 @@ abstract class forminput
             $this->attributes["readonly"] = "readonly";
         if (isset($this->autofocus) and $this->autofocus)
             $this->attributes["autofocus"] = "autofocus";
+        if ($this->show_invalid) {
+            $this->add_css_class(OR_FORM_INPUT_INVALID_CSS);
+        }
         return $this->output_attributes();
     }
 
     function print_label() {
-        return "<label for=\"{$this->id}\">{$this->label}</label>";
+        return "<label for=\"{$this->id}\"".($this->show_invalid ? " class=\"".OR_FORM_LABEL_INVALID_CSS."\"" : "").">{$this->label}</label>";
     }
 }
 
@@ -459,6 +479,12 @@ abstract class forms
             if ($this->_meta->all_valid && ($this->_meta->all_valid = $this->validate()) && isset($_POST[$this->_meta->submit_button->name])) {
                 $this->done($this->get_results());
                 $this->_meta->is_complete = true;
+            }
+            foreach ($this->inputs() as $input) {
+                if (!$input->get_valid()) {
+                    # this has to run after the form->validate() function, which might change the valid state of inputs
+                    $input->show_invalid(true);
+                }
             }
         }
         return $this;
