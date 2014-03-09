@@ -51,19 +51,6 @@ class error extends layer {
                 $body .= "</div></body></html>";
                 $response = array(500, array("HTTP/1.1 500 Internal Server Error"), $body);
             }
-            # since environment variables are probably secrets, scrub them from the report
-            $required_environment_variables = get_setting(null, "environment");
-            if ($required_environment_variables) {
-                # loop through and load all the environment variables
-                foreach ($required_environment_variables as $variable_name => $variable_options) {
-                    $environment_value = getenv($variable_name);
-                    # skip replacing empty and numeric values
-                    if (strlen($environment_value) > 0 and !is_numeric($environment_value)) {
-                        # replace the environment value with the name of the variable
-                        $response[2] = str_replace($environment_value, "{".$variable_name."}", $response[2]);
-                    }
-                }
-            }
         }
         return $response;
     }
@@ -162,6 +149,31 @@ function error_info_for_exception($exception) {
     $message .= "Request => ".htmlentities(var_to_string($request, 2));
     $message .= "\n\nSettings => ".htmlentities(var_to_string($settings, 2));
     $message .= "</code></pre>";
+
+    # provide an option to scrub specific values from the report
+    $secrets = get_setting(null, "secrets");
+    if (is_array($secrets)) {
+        foreach ($secrets as $secret_info) {
+            if (is_array($secret_info) and 2 == count($secret_info)) {
+                $secret_info = get_setting($secret_info[0], $secret_info[1]);
+            }
+            $message = str_replace($secret_info, "{secret}", $message);
+        }
+    } else {
+        # since environment variables are probably secrets, scrub them from the report
+        $required_environment_variables = get_setting(null, "environment");
+        if ($required_environment_variables) {
+            # loop through and load all the environment variables
+            foreach ($required_environment_variables as $variable_name => $variable_options) {
+                $environment_value = getenv($variable_name);
+                # skip replacing empty and numeric values
+                if (strlen($environment_value) > 0 and !is_numeric($environment_value)) {
+                    # replace the environment value with the name of the variable
+                    $message = str_replace($environment_value, "{".$variable_name."}", $message);
+                }
+            }
+        }
+    }
 
     if (get_setting(null, "debug", false)) {
         return $message;
