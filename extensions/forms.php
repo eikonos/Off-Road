@@ -169,7 +169,7 @@ class button extends forminput {
     function __toString() {
         # do not set 'type'='button' because that prevents the button from submitting the form
         $this->attributes["name"]   = $this->name;
-        $this->attributes["value"]  = $this->label;
+        $this->attributes["value"]  = $this->name;
         $this->attributes["id"]     = $this->id;
         if (isset($this->disabled) and $this->disabled)
             $this->attributes["disabled"] = "disabled";
@@ -184,7 +184,7 @@ class button extends forminput {
         foreach ($this->attributes as $name => $value) {
             echo " $name=\"$value\"";
         }
-        echo ">{$this->name}</button>";
+        echo ">{$this->label}</button>";
         return ob_get_clean();
     }
 }
