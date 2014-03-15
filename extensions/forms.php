@@ -376,7 +376,8 @@ class submit_button extends forminput {
     protected $returns_value = false;
     function load_value(){}
     function __toString() {
-        return "<input type=\"submit\" name=\"{$this->name}\" id=\"{$this->name}\" value=\"{$this->label}\" />";
+        return "<button type=\"submit\" name=\"{$this->name}\" id=\"{$this->name}\" ".
+            "value=\"{$this->name}\">{$this->label}</button>";
     }
 }
 
