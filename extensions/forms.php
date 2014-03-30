@@ -314,17 +314,19 @@ function radio(){return new radio();}
 class radio extends forminput {
     function __toString() {
         ob_start();
+        echo "<span id=\"radio-set-{$this->id}\" class=\"radio-set\">";
         foreach ($this->validate_data as $option) {
-            echo "<label for=\"{$this->name}_{$option['value']}\">";
+            echo "<label for=\"{$this->id}_{$option['value']}\" id=\"radio-set-item-{$this->id}-{$option['value']}\">";
             $this->attributes["type"] = "radio";
             $this->attributes["name"] = $this->name;
-            $this->attributes["id"] = "{$this->name}_{$option['value']}";
+            $this->attributes["id"] = "{$this->id}_{$option['value']}";
             $this->attributes["value"] = $option['value'];
             unset($this->attributes["checked"]);
             if ($this->get_value() == $option['value']){$this->attributes["checked"] = "checked";}
             echo $this->output_attributes();
             echo "{$option['label']}</label>";
         }
+        echo "</span>";
         return ob_get_clean();
     }
 
