@@ -182,6 +182,18 @@ abstract class rowobj {
             $insert_after_column_name);
     }
 
+    static function drop_column($column_name) {
+        $actual_class = get_called_class();
+        global $db;
+        return $db->drop_column($actual_class::tablename(), $column_name);
+    }
+
+    static function change_column_type($column_name, $type) {
+        $actual_class = get_called_class();
+        global $db;
+        return $db->change_column_type($actual_class::tablename(), $column_name, $type);
+    }
+
     #function insert($new_values)
     #{
     #    $tablename = call_user_func(array($this, 'tablename'));
