@@ -129,6 +129,11 @@ if (strnatcmp(phpversion(), "5.2.10") >= 0) {
             return date("Y-m-d H:i:s", $this->value());     # eg: 2010-03-20 17:27:17
         }
 
+        function datetime_with_zone() {
+            if (!$this->is_valid()) return "";
+            return date("Y-m-d H:i:s T", $this->value());   # eg: 2010-03-20 17:27:17 PDT
+        }
+
         function relative() {
             if (!$this->is_valid()) return "";
             # array of time period chunks
@@ -287,6 +292,11 @@ if (strnatcmp(phpversion(), "5.2.10") >= 0) {
         function datetime() {
             if (!$this->is_valid()) return "";
             return date("Y-m-d H:i:s", $this->value());     # eg: 2010-03-20 17:27:17
+        }
+
+        function datetime_with_zone() {
+            if (!$this->is_valid()) return "";
+            return date("Y-m-d H:i:s T", $this->value());   # eg: 2010-03-20 17:27:17 PDT
         }
 
         function relative() {
