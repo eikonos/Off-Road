@@ -151,29 +151,7 @@ function error_info_for_exception($exception) {
     $message .= "</code></pre>";
 
     # provide an option to scrub specific values from the report
-    $secrets = get_setting(null, "secrets");
-    if (is_array($secrets)) {
-        foreach ($secrets as $secret_info) {
-            if (is_array($secret_info) and 2 == count($secret_info)) {
-                $secret_info = get_setting($secret_info[0], $secret_info[1]);
-            }
-            $message = str_replace($secret_info, "{secret}", $message);
-        }
-    } else {
-        # since environment variables are probably secrets, scrub them from the report
-        $required_environment_variables = get_setting(null, "environment");
-        if ($required_environment_variables) {
-            # loop through and load all the environment variables
-            foreach ($required_environment_variables as $variable_name => $variable_options) {
-                $environment_value = getenv($variable_name);
-                # skip replacing empty and numeric values
-                if (strlen($environment_value) > 0 and !is_numeric($environment_value)) {
-                    # replace the environment value with the name of the variable
-                    $message = str_replace($environment_value, "{".$variable_name."}", $message);
-                }
-            }
-        }
-    }
+    $message = scrub_secrets($message);
 
     if (get_setting(null, "debug", false)) {
         return $message;
@@ -291,7 +269,8 @@ function var_to_string($var, $depth = 5) {
             $return .= $result;
         }
     }
-    return $return;
+
+    return scrub_secrets($return);
 }
 
 function get_object_attributes($object)  # sorts by attribute name; gets private attributes
@@ -327,6 +306,33 @@ function &get_object_functions($object)  # like get_class_methods but retuns pri
     }
     ksort($functions);
     return $functions;
+}
+
+function scrub_secrets($message) {
+    $secrets = get_setting(null, "secrets");
+    if (is_array($secrets)) {
+        foreach ($secrets as $secret_info) {
+            if (is_array($secret_info) and 2 == count($secret_info)) {
+                $secret_info = get_setting($secret_info[0], $secret_info[1]);
+            }
+            $message = str_replace($secret_info, "{secret}", $message);
+        }
+    } else {
+        # since environment variables are probably secrets, scrub them from the report
+        $required_environment_variables = get_setting(null, "environment");
+        if ($required_environment_variables) {
+            # loop through and load all the environment variables
+            foreach ($required_environment_variables as $variable_name => $variable_options) {
+                $environment_value = getenv($variable_name);
+                # skip replacing empty and numeric values
+                if (strlen($environment_value) > 0 and !is_numeric($environment_value)) {
+                    # replace the environment value with the name of the variable
+                    $message = str_replace($environment_value, "{".$variable_name."}", $message);
+                }
+            }
+        }
+    }
+    return $message;
 }
 
 # fairly similar to error_log(print_r($var, true)), except that recursing is limited and log_var is easier to type
