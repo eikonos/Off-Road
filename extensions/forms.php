@@ -299,7 +299,6 @@ class fileupload extends forminput {
 function hidden(){return new hidden();}
 class hidden extends forminput {
     var $is_visible = false; # it does output on the page, but the user doesn't see it
-    function load_value(){}
     function __toString() {
         return "<input type=\"hidden\" name=\"{$this->name}\" value=\"".htmlentities($this->value, ENT_QUOTES, "UTF-8", true)."\" />";
     }
