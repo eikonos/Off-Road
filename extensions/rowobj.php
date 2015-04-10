@@ -120,6 +120,8 @@ abstract class rowobj {
                 case "datetime":
                 if ("" == $value || ($value = date_obj($value)) && !$value->is_valid) {
                     $value = null;
+                } else {
+                    $value = $value->format("c");
                 }
                 break;
 
