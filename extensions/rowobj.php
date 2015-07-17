@@ -25,7 +25,11 @@ abstract class rowobj {
             switch ($field["type"]) {
                 case "id":
                 case "int":
-                $row_data->$name = (int)$row_data->$name;
+                if (null === $row_data->$name) {
+                    $row_data->$name = null;
+                } else {
+                    $row_data->$name = (int)$row_data->$name;
+                }
                 break;
 
                 case "float":
