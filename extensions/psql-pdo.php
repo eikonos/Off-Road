@@ -16,10 +16,11 @@ class db
     private static $connection     = null;
     private static $settings       = null;
     private static $use_count      = 0;
-    private static $trans_count    = 0;        # count transactions started
+    private static $trans_count    = 0;           # count transactions started
     private static $trans_ok       = true;        # no errors during transaction
     private static $queries        = array();
     private static $previous_exception_handler = null;
+    private static $last_rowcount  = -1;
     protected $columns             = array();
     protected $joins               = array();
     protected $where               = array();
@@ -70,8 +71,7 @@ class db
     # todo: abort transaction
 
     static function get_affected_rows($result) {
-        $aff_count = pg_affected_rows($result);
-        return $aff_count;
+        return self::$last_rowcount;
     }
 
     function get_insert_id() {
@@ -105,8 +105,10 @@ class db
     function query($sql, $get_results = self::GET_NOTHING) {
         $this->_reset();
         try {
-            $result = pg_query(self::_get_connection(), $sql);
-        } catch (Exception $e) {
+            self::$last_rowcount = -1;
+            $result = self::$connection->query($sql);
+            self::$last_rowcount = $result->rowCount();
+        } catch(PDOException $e) {
             # add the full query so it is logged and/or emailed
             throw new Exception($e->getMessage()."\nSQL: $sql", $e->getCode(), $e);
         }
@@ -126,7 +128,7 @@ class db
                 case self::GET_RESULTS:
                 {
                     $rows = array();
-                    do {} while(false !== ($row = pg_fetch_object($result)) && $rows[] = $row);
+                    do {} while(false !== ($row = $result->fetch(PDO::FETCH_OBJ)) && $rows[] = $row);
                     return $rows;
                 }
                 break;
@@ -600,8 +602,8 @@ error_log("assuming operator is = for where query on $column - $value in {$trace
 
     function _escape_data($value) {
         switch (gettype($value)) {
-            case 'object':     return "'".pg_escape_string((string)$value)."'"; break;
-            case 'string':     return "'".pg_escape_string($value)."'"; break;
+            case 'object':     return self::$connection->quote((string)$value); break;
+            case 'string':     return self::$connection->quote($value); break;
             case 'boolean':    return (true === $value) ? "'t'" : "'f'"; break;
             case 'NULL':       return 'NULL'; break;
             default:           return $value; break;
@@ -701,8 +703,10 @@ throw new Exception("bam"); # how does subquery work?
         }
         if (null == self::$connection) {
             # port=xx
-            self::$connection = pg_connect("host=".self::$settings['hostname']." dbname=".self::$settings['database'].
-                " user=".self::$settings['username']." password=".self::$settings['password']);
+
+            self::$connection = new PDO("pgsql:host=".self::$settings['hostname']." dbname=".self::$settings['database'],
+                self::$settings['username'], self::$settings['password']);
+            self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             if (null == self::$connection) {
                 return false;
             }
@@ -712,11 +716,11 @@ throw new Exception("bam"); # how does subquery work?
 
             # the first time we connect to the database, check that the schema exists
             $schema = self::$settings['pg_schema'];
-            $result = pg_query(self::$connection, "select exists (select * from pg_catalog.pg_namespace where nspname = '{$schema}') as schema_exists;");
-            if ('f' == pg_fetch_object($result)->schema_exists) {
-                pg_query(self::$connection, "create schema \"{$schema}\";");
+            $result = self::$connection->query("select exists (select * from pg_catalog.pg_namespace where nspname = '{$schema}') as schema_exists;");
+            $obj = $result->fetch(PDO::FETCH_OBJ);
+            if (!$obj->schema_exists) {
+                $result = self::$connection->query("create schema \"{$schema}\";");
             }
-            pg_free_result($result);
         }
         ++self::$use_count;
         return true;
@@ -728,7 +732,6 @@ throw new Exception("bam"); # how does subquery work?
 
     static function _close_connection() {
         if (0 == --self::$use_count && null != self::$connection) {
-            pg_close(self::$connection);
             self::$connection = null;
             if (self::_get_setting('debug')) {
                 error_log("----- begin database queries -----");
