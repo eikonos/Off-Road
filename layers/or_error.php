@@ -10,7 +10,7 @@ if (!defined("OR_VERSION")) {header("Location: /");exit(0);}
 # A controllor 'error' with function '500' should be provided by the site.
 #
 
-class error extends layer {
+class or_error extends layer {
     public static function run() {
         global $request; global $settings;
         set_error_handler('exceptions_error_handler', E_ALL);    # raise errors as exceptions

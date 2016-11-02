@@ -84,10 +84,12 @@ class dbsession extends db {
         } else {
             set_session_data("last_regen_time", time());
         }
+        return true;
     }
 
     function __destruct() {
         # this will be called before session:write(), so destruct in close() instead
+        return true;
     }
 
     function open() {
@@ -109,7 +111,7 @@ class dbsession extends db {
 
     function close() {
         parent::__destruct();
-        return TRUE;
+        return true;
     }
 
     function read($id) {
@@ -119,16 +121,19 @@ class dbsession extends db {
 
     function write($id, $data) {
         $data = array("last_access"=>time(), "data"=>$data);
-        return $this->insert_or_update($this->session_settings["dbtable"], $data, array("id"=>$id));
+        $this->insert_or_update($this->session_settings["dbtable"], $data, array("id"=>$id));
+        return true;
     }
 
     function destroy($id) {
         $this->where("id", "=", $id);
-        return $this->delete($this->session_settings["dbtable"]);
+        $this->delete($this->session_settings["dbtable"]);
+        return true;
     }
 
     function gc($max) {
         $this->where("last_access", "<", time() - $max);
-        return $this->delete($this->session_settings["dbtable"]);
+        $this->delete($this->session_settings["dbtable"]);
+        return true;
     }
 }
