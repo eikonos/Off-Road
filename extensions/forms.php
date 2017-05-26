@@ -304,6 +304,13 @@ class hidden extends forminput {
     }
 }
 
+function readonly(){return new readonly();}
+class readonly extends hidden {
+    function load_value() {
+        return $this->value;
+    }
+}
+
 function password(){return new password();}
 class password extends textbox {
     var $type = "password";
@@ -448,10 +455,10 @@ abstract class forms {
 
         $this->_meta->max_file_size = 0;
 
-        $this->submitting = hidden()->value($this->_meta->attributes->name);
+        $this->submitting = readonly()->value($this->_meta->attributes->name);
         global $request;
         if (isset($request['route']['parameters']['csrf'])) {
-            $this->csrf = hidden()->value($request['route']['parameters']['csrf']);
+            $this->csrf = readonly()->value($request['route']['parameters']['csrf']);
         }
         $this->create_inputs();
         if (!isset($this->{$this->_meta->submit_button->name})) {
@@ -459,7 +466,7 @@ abstract class forms {
             $this->{$this->_meta->submit_button->name} = submit_button()->label($this->_meta->submit_button->label);
         }
         if ($this->_meta->max_file_size > 0 && !isset($this->MAX_FILE_SIZE)) {
-            $this->MAX_FILE_SIZE = hidden()->value($this->_meta->max_file_size);
+            $this->MAX_FILE_SIZE = readonly()->value($this->_meta->max_file_size);
             $this->_meta->attributes->enctype = "multipart/form-data";
         }
         if ($this->_meta->is_submitting) {
