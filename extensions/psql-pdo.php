@@ -519,7 +519,7 @@ class db
     }
 
     function where($column, $operator = true, $value = null, $and = true, $options = array()) {
-        if (!in_array($operator, array("=", "<>", "is", "is not", "<", ">", ">=", "<="))) {
+        if (!in_array($operator, array("=", "<>", "is", "is not", "<", ">", ">=", "<=", "like"))) {
             # to help when porting code from rowBase objects which do not pass an operator, shift parameters
             $value = $operator;
             $operator = "=";
